@@ -52,7 +52,9 @@ class HazerSupply(SupplyBlock):
     def lca(self) -> Dict[str, float]:
         flows = self.mass_energy()
         co2_leakage = flows["CH4"] * self.params.leakage * 2.75  # kg CO2 from CH4 leak
-        co2_grid = flows["Electricity"] * 18 * 1000  # assuming 18 g CO2/kWh
+        # Electricity is tracked in MWh and the grid emissions factor is
+        # 18 kg CO2 per MWh (18 g/kWh).
+        co2_grid = flows["Electricity"] * 18
         total_co2 = co2_leakage + co2_grid
         return {
             "kg_co2_per_kg_h2": total_co2 / flows["H2"],
