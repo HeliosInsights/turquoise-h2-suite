@@ -25,8 +25,20 @@ print(result)
 
 This returns a dictionary with total hydrogen produced, supply CAPEX, levelised cost of hydrogen and associated CO₂ emissions.
 
+
 You can also run scenarios from a YAML file using `run_from_yaml.py`:
 
 ```bash
 python run_from_yaml.py scenario.yml
 ```
+=======
+## Scenario runner
+
+`core.run_scenarios` executes a supply block based on a YAML configuration and prints a table of key outputs.
+
+```bash
+python -m core.run_scenarios example_scenario.yaml
+```
+
+The provided `example_scenario.yaml` defines keys such as `H2_source`, `graphite_price`, energy prices and the graphite allocation fraction.
+

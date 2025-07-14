@@ -52,9 +52,20 @@ class HazerSupply(SupplyBlock):
     def lca(self) -> Dict[str, float]:
         flows = self.mass_energy()
         co2_leakage = flows["CH4"] * self.params.leakage * 2.75  # kg CO2 from CH4 leak
-        co2_grid = flows["Electricity"] * 18 * 1000  # assuming 18 g CO2/kWh
+        # Electricity is tracked in MWh and the grid emissions factor is
+        # 18 kg CO2 per MWh (18 g/kWh).
+        co2_grid = flows["Electricity"] * 18
         total_co2 = co2_leakage + co2_grid
         return {
             "kg_co2_per_kg_h2": total_co2 / flows["H2"],
             "total_kg_co2": total_co2,
+        }
+
+    def byproducts(self) -> Dict[str, float]:
+        """Return mass flows of graphite, tail-gas and catalyst."""
+        h2_total = float(sum(self.demand))
+        return {
+            "graphite": h2_total * self.params.graphite_per_h2,
+            "tail_gas": h2_total * 0.15,  # kg per kg H2 from PSA slip-stream
+            "catalyst": h2_total * 0.8,   # kg Fe ore make-up per kg H2
         }
