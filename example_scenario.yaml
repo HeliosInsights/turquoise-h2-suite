@@ -1,0 +1,11 @@
+H2_source: hazer
+# price for selling graphite (USD per kg)
+graphite_price: 0.8
+# electricity price in USD per kWh (used for electrolysis)
+elec_price: 0.05
+# natural gas price in USD per kg CH4 (used for pyrolysis)
+ng_price: 4.0
+# fraction of graphite sold (0-1)
+graphite_allocation: 1.0
+# hydrogen demand in tonnes per day
+h2_demand_tpd: 7.55
