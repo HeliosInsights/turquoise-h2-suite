@@ -3,13 +3,21 @@ from typing import Dict, Any, Sequence
 from statistics import mean
 
 from .base import SupplyBlock
+from core import enthalpy
+from .electrolysis import elec_price_default
 
 
 @dataclass
 class HazerParams:
     """Key parameters for a Hazer-style methane pyrolysis plant."""
     ch4_per_h2: float = 3.8  # kg CH4 per kg H2
-    elec_per_h2: float = 0.10  # MWh per t H2
+    comp_elec_per_h2: float = 0.58  # MWh per t H2 (PSA + compression)
+    preheat_temp_c: float = 400.0
+    reactor_temp_c: float = 950.0
+    tailgas_fraction: float = 0.15  # fraction of CH4 feed as tail-gas
+    tailgas_utilisation: float = 0.9
+    catalyst_makeup_fe_per_h2: float = 0.8  # kg Fe per kg H2
+    catalyst_price: float = 0.2  # USD per kg Fe
     capex_per_tpd: float = 12e6  # USD per t H2/day of capacity
     graphite_per_h2: float = 2.9  # kg graphite per kg H2
     graphite_price: float = 0.5  # USD per kg
@@ -25,26 +33,60 @@ class HazerSupply(SupplyBlock):
         self.params = params or HazerParams()
 
     def mass_energy(self) -> Dict[str, float]:
-        h2 = list(self.demand)
-        ch4 = [x * self.params.ch4_per_h2 for x in h2]
-        elec = [x * self.params.elec_per_h2 / 1000 for x in h2]  # convert to GWh
+        """Mass and energy flows based on simple enthalpy balance."""
+        h2_flow = list(self.demand)
+        total_h2 = float(sum(h2_flow))
+        ch4_mass = total_h2 * self.params.ch4_per_h2
+        ch4_mol = enthalpy.mass_to_mol("CH4", ch4_mass)
+
+        # Heat duties
+        heat_pre = enthalpy.sensible_enthalpy(
+            "CH4", 25.0, self.params.reactor_temp_c
+        ) * ch4_mol
+        heat_rxn = enthalpy.reaction_heat_per_mol_h2() * enthalpy.mass_to_mol(
+            "H2", total_h2
+        )
+        heat_cool = enthalpy.sensible_enthalpy(
+            "CH4", self.params.reactor_temp_c, 70.0
+        ) * ch4_mol
+        tailgas_mass = ch4_mass * self.params.tailgas_fraction
+        tailgas_heat = (
+            enthalpy.lhv("CH4")
+            * 1e3
+            * tailgas_mass
+            * self.params.tailgas_utilisation
+        )
+        net_heat_kJ = max(0.0, heat_pre + heat_rxn - heat_cool - tailgas_heat)
+        heater_mwh = net_heat_kJ / 3.6e6
+
+        comp_elec = self.params.comp_elec_per_h2 * total_h2 / 1000
+        electricity = comp_elec + heater_mwh
+
         return {
-            "H2": float(sum(h2)),
-            "CH4": float(sum(ch4)),
-            "Electricity": float(sum(elec)),
+            "H2": total_h2,
+            "CH4": ch4_mass,
+            "Electricity": electricity,
+            "CatalystFe": total_h2 * self.params.catalyst_makeup_fe_per_h2,
         }
 
     def capex_opex(self) -> Dict[str, Any]:
         avg_rate = mean(self.demand)  # kg/h
         size_tpd = avg_rate * 24 / 1000  # t H2/day
         capex = size_tpd * self.params.capex_per_tpd
-        graphite_rev = sum(self.demand) * self.params.graphite_per_h2 * self.params.graphite_price
-        fuel_cost = self.mass_energy()["CH4"] * self.params.ng_price
+        flows = self.mass_energy()
+        graphite_rev = flows["H2"] * self.params.graphite_per_h2 * self.params.graphite_price
+        fuel_cost = flows["CH4"] * self.params.ng_price
+        power_cost = flows["Electricity"] * 1000 * elec_price_default
+        catalyst_cost = flows["CatalystFe"] * self.params.catalyst_price
         annualised = 0.1 * capex  # 10 % capital recovery as placeholder
-        lcoh = (annualised + fuel_cost - graphite_rev) / self.mass_energy()["H2"]
+        lcoh = (
+            annualised + fuel_cost + power_cost + catalyst_cost - graphite_rev
+        ) / flows["H2"]
         return {
             "capex": capex,
             "fuel_cost": fuel_cost,
+            "power_cost": power_cost,
+            "catalyst_cost": catalyst_cost,
             "graphite_revenue": graphite_rev,
             "lcoh": lcoh,
         }
