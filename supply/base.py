@@ -23,3 +23,8 @@ class SupplyBlock(ABC):
     def lca(self) -> Dict[str, float]:
         """Return lifecycle assessment metrics."""
         raise NotImplementedError
+
+    @abstractmethod
+    def byproducts(self) -> Dict[str, float]:
+        """Return mass flows of key byproducts like graphite."""
+        raise NotImplementedError
