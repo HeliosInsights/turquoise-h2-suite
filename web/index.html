@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Hydrogen Steel Plant Demo</title>
+</head>
+<body>
+<h1>Hydrogen Steel Plant Demo</h1>
+<p>
+  Supply type:
+  <select id="type">
+    <option value="hazer">Hazer</option>
+    <option value="electrolysis">Electrolysis</option>
+  </select>
+  <button onclick="runModel()">Run</button>
+</p>
+<pre id="output"></pre>
+<script>
+function runModel() {
+  const type = document.getElementById('type').value;
+  fetch('/api/run?type=' + encodeURIComponent(type))
+    .then(r => r.json())
+    .then(data => {
+      document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+    })
+    .catch(err => {
+      document.getElementById('output').textContent = 'Error: ' + err;
+    });
+}
+</script>
+</body>
+</html>
