@@ -42,3 +42,14 @@ python -m core.run_scenarios example_scenario.yaml
 
 The provided `example_scenario.yaml` defines keys such as `H2_source`, `graphite_price`, energy prices and the graphite allocation fraction.
 
+
+## Web demo
+
+A small web server in `web/app.py` visualises outputs. Start it from the repo
+root and open `http://localhost:8000` in a browser:
+
+```bash
+python web/app.py
+```
+
+Select a supply type and press *Run* to see the resulting costs and emissions.
