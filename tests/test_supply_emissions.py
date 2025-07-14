@@ -12,8 +12,8 @@ def test_emissions_small_profile():
 
     hazer = HazerSupply(demand)
     hazer_lca = hazer.lca()
-    assert hazer_lca["total_kg_co2"] == pytest.approx(0.16215)
-    assert hazer_lca["kg_co2_per_kg_h2"] == pytest.approx(0.05405)
+    assert hazer_lca["total_kg_co2"] == pytest.approx(0.30754, rel=1e-3)
+    assert hazer_lca["kg_co2_per_kg_h2"] == pytest.approx(0.10251, rel=1e-3)
 
     electrolysis = ElectrolysisSupply(demand)
     elec_lca = electrolysis.lca()

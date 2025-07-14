@@ -2,10 +2,8 @@
 from typing import Dict, Sequence
 
 
-from supply import HazerSupply, ElectrolysisSupply
-from energy import RenewableSupply
-=======
 from supply import HazerSupply, ElectrolysisSupply, GraphiteLedger
+from energy import RenewableSupply
 
 
 SUPPLY_MAP = {
@@ -16,12 +14,6 @@ SUPPLY_MAP = {
 
 
 
-def run_steel_plant(
-    demand_profile: Sequence[float],
-    supply_type: str = 'hazer',
-    solar: Sequence[float] | None = None,
-    wind: Sequence[float] | None = None,
-=======
 CARBON_FINES_PRICE = 0.18  # USD per kg
 ELECTRODE_PRICE = 3.0      # USD per kg
 
@@ -29,7 +21,10 @@ ELECTRODE_PRICE = 3.0      # USD per kg
 def run_steel_plant(
     demand_profile: Sequence[float],
     supply_type: str = 'hazer',
-    ledger: GraphiteLedger | None = None) -> Dict[str, float]:
+    solar: Sequence[float] | None = None,
+    wind: Sequence[float] | None = None,
+    ledger: GraphiteLedger | None = None,
+) -> Dict[str, float]:
   
     """Compute rough cost and emission results for a steel plant."""
     SupplyCls = SUPPLY_MAP[supply_type]
