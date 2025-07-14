@@ -46,5 +46,9 @@ class ElectrolysisSupply(SupplyBlock):
 
     def lca(self) -> Dict[str, float]:
         flows = self.mass_energy()
-        co2_grid = flows["Electricity"] * 18 * 1000
-        return {"kg_co2_per_kg_h2": co2_grid / flows["H2"], "total_kg_co2": co2_grid}
+        # Electricity use is in MWh; apply 18 kg CO2/MWh (18 g/kWh).
+        co2_grid = flows["Electricity"] * 18
+        return {
+            "kg_co2_per_kg_h2": co2_grid / flows["H2"],
+            "total_kg_co2": co2_grid,
+        }
