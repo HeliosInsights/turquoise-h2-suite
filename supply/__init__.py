@@ -1,6 +1,7 @@
 from .base import SupplyBlock
 from .pyrolysis_hazer import HazerSupply, HazerParams
 from .electrolysis import ElectrolysisSupply, ElectrolysisParams
+from .graphite import GraphiteLedger
 
 __all__ = [
     'SupplyBlock',
@@ -8,4 +9,5 @@ __all__ = [
     'HazerParams',
     'ElectrolysisSupply',
     'ElectrolysisParams',
+    'GraphiteLedger',
 ]
