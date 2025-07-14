@@ -1,5 +1,4 @@
 """Run the steel plant model from a YAML configuration."""
-import yaml
 from typing import Sequence
 
 from core.steel_plant import run_steel_plant
@@ -7,6 +6,11 @@ from energy.traces import load_traces
 
 
 def run_scenario(path: str):
+    try:
+        import yaml
+    except ModuleNotFoundError as exc:
+        raise RuntimeError("PyYAML is required to load scenario files") from exc
+
     with open(path) as f:
         cfg = yaml.safe_load(f)
 
