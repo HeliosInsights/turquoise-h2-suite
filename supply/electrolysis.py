@@ -52,3 +52,7 @@ class ElectrolysisSupply(SupplyBlock):
             "kg_co2_per_kg_h2": co2_grid / flows["H2"],
             "total_kg_co2": co2_grid,
         }
+
+    def byproducts(self) -> Dict[str, float]:
+        """Electrolysis produces no byproducts."""
+        return {}
