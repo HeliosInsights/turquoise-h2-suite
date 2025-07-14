@@ -7,6 +7,8 @@ A prototype techno‑economic modelling toolkit for hydrogen‑based steelmaking
 - **`supply`** – pluggable hydrogen supply blocks. Currently supports:
   - `HazerSupply` – methane pyrolysis based on the Hazer process.
   - `ElectrolysisSupply` – basic electrolytic hydrogen model.
+- **`energy`** – renewable utilities including `BatteryTES` and
+  `RenewableSupply` for PV/wind powered hydrogen.
 - **`core`** – minimal steel plant wrapper that uses a supply block to calculate costs and emissions.
 
 ## Quick example
@@ -23,6 +25,13 @@ print(result)
 
 This returns a dictionary with total hydrogen produced, supply CAPEX, levelised cost of hydrogen and associated CO₂ emissions.
 
+
+You can also run scenarios from a YAML file using `run_from_yaml.py`:
+
+```bash
+python run_from_yaml.py scenario.yml
+```
+=======
 ## Scenario runner
 
 `core.run_scenarios` executes a supply block based on a YAML configuration and prints a table of key outputs.
@@ -32,3 +41,4 @@ python -m core.run_scenarios example_scenario.yaml
 ```
 
 The provided `example_scenario.yaml` defines keys such as `H2_source`, `graphite_price`, energy prices and the graphite allocation fraction.
+
